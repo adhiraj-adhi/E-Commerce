@@ -23,9 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 " can not be found")
         );
 
-        UserDetails userDetails = User.withUsername(user.getUsername()).password(user.getPassword()).build();
-
-        return userDetails;
+        return User.withUsername(user.getUsername()).password(user.getPassword()).build();
     }
 
 
