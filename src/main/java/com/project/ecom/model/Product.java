@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Product {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+//	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long productId;
 	@NotBlank
 	@Size(min = 3, message = "Product name must contain atleast 3 characters")
