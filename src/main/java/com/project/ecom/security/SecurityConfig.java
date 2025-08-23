@@ -15,12 +15,11 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);  // disabling csrf
         http.authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/", "/signin",
-                        "/api/public/categories",
+//                        "/api/public/categories", // commented for testing
                         "/api/public/products",
                         "/api/public/categories/{categoryId}/products",
                         "/api/public/products/keyword/{keyword}").permitAll()
                 .anyRequest().authenticated());
-//        http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
     }
