@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
 /* Provides custom handling for unauthorized requests, typically when authentication is required
 but not supplied or valid.
  */
+@Component
 public class AuthEntryPointJWT implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJWT.class);
     @Override

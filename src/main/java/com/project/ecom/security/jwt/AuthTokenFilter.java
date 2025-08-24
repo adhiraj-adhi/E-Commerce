@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    private static final Logger logger = LoggerFactory.getLogger(Authentication.class);
+    @Autowired
+    private AuthEntryPointJWT authEntryPointJWT;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -33,12 +37,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (token!=null && jwtUtils.validateJWTToken(token)) {
                 String username = jwtUtils.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
+                authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                /*
+                * We are setting authorities because this object always expects authorities, even
+                * if it’s empty. Without this step, Spring won’t consider the user authenticated.
+                * */
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception e) {
-            logger.error("Error setting authentication: {}", e.getMessage());
+        } catch (AuthenticationException authEx) {
+            logger.error("Authentication error: {}", authEx.getMessage());
+            authEntryPointJWT.commence(request, response, authEx);
         }
+        catch (Exception e) {
+            logger.error("Unexpected error: {}", e.getMessage(), e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Something went wrong");
+        }
+
         filterChain.doFilter(request, response);
     }
 }
