@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "addresses")
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

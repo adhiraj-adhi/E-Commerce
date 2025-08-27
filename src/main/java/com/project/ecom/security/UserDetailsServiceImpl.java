@@ -1,6 +1,6 @@
 package com.project.ecom.security;
 
-import com.project.ecom.dao.UsersRepository;
+import com.project.ecom.dao.UserRepository;
 import com.project.ecom.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = usersRepository.findByUsername(username).orElseThrow(() -> new
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new
                 UsernameNotFoundException("User with the email" +username+
                 " can not be found")
         );

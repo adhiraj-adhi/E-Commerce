@@ -1,9 +1,11 @@
 package com.project.ecom.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -19,7 +21,7 @@ import java.util.Set;
 //        @UniqueConstraint(columnNames = "email")
     })
 @Data
-@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +33,8 @@ public class User {
     private String username;
 
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 120) // encrypted password will have more length
+    @JsonIgnore  // to ignore sending password in response
     private String password;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},

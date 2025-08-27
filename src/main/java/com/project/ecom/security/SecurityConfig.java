@@ -20,7 +20,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);  // disabling csrf
         http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/signin",
+                .requestMatchers("/", "/signin", "/register",
 //                        "/api/public/categories", // commented for testing
                         "/api/public/products",
                         "/api/public/categories/{categoryId}/products",
