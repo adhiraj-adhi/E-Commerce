@@ -28,20 +28,20 @@ public class CategoryController {
 		return ResponseEntity.ok(catService.getAllCategoriesService(pageNumber, pageSize, sortBy, sortOrder));
 	}
 	
-	@PostMapping("/admin/categories")
+	@PostMapping("/categories")
 	public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
 		CategoryDTO catDTO = catService.createCategoryService(categoryDTO);
 		return new ResponseEntity<>(catDTO, HttpStatus.CREATED);
 	}
 	
-	@DeleteMapping("/admin/categories/{categoryId}")  // Using 
+	@DeleteMapping("/categories/{categoryId}")  // Using
 	public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId) {		
 		CategoryDTO catDTO = catService.deleteCategoryService(categoryId);
 		ResponseEntity<CategoryDTO> respEntity = new ResponseEntity<>(catDTO, HttpStatus.OK);	
 		return respEntity;
 	}
 	
-	@PutMapping("/admin/categories/{categoryId}")
+	@PutMapping("/categories/{categoryId}")
 	public ResponseEntity<CategoryDTO> updateCategory(@Valid @RequestBody CategoryDTO categoryDTO, @PathVariable Long categoryId) {
 		CategoryDTO catDTO = catService.updateCategoryService(categoryId, categoryDTO);
 		ResponseEntity<CategoryDTO> respEntity = new ResponseEntity<>(catDTO, HttpStatus.OK);		

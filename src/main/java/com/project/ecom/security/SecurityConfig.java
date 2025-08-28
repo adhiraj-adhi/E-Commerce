@@ -27,6 +27,11 @@ public class SecurityConfig {
                         "/api/public/products/keyword/{keyword}").permitAll()
                 .anyRequest().authenticated());
 
+//        requestMatchers(HttpMethod.GET, "/", "/signin", "/register",
+//                "/api/public/products",
+//                "/api/public/categories/{categoryId}/products",
+//                "/api/public/products/keyword/{keyword}").permitAll()
+
         http.addFilterBefore(authTokenFilter,BasicAuthenticationFilter.class);
         http.httpBasic(withDefaults());
         return http.build();

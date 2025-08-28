@@ -20,7 +20,7 @@ public class ProductController {
 	private ProductService productService;
 	
 	// Add a product
-	@PostMapping("/admin/categories/{categoryId}/product")
+	@PostMapping("/categories/{categoryId}/product")
 	public ResponseEntity<ProductDTO> addProduct(@PathVariable Long categoryId,
 												 @Valid @RequestBody Product product
 			) {
@@ -39,7 +39,7 @@ public class ProductController {
 	}
 	
 	// Get all products of a category
-	@GetMapping("/public/categories/{categoryId}/products")
+	@GetMapping("public/categories/{categoryId}/products")
 	public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId,
 			@RequestParam(name="pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
 			@RequestParam(name="pageSize", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
@@ -60,14 +60,14 @@ public class ProductController {
 	
 	
 	// Update a product (except image)
-	@PutMapping("/admin/products/{productId}")
+	@PutMapping("/products/{productId}")
 	public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId, @Valid @RequestBody Product product) {
 		return ResponseEntity.ok(productService.updateProductService(productId, product));
 	}	
 	
 	
 	// Delete a product
-	@DeleteMapping("/admin/products/{productId}")
+	@DeleteMapping("/products/{productId}")
 	public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId) {
 		return ResponseEntity.ok(productService.deleteProductService(productId));
 	}
