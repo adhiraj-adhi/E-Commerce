@@ -76,7 +76,6 @@ public class CategoryServiceImpl implements CategoryService {
 //	public boolean createCategoryService(Category category) {
 	public CategoryDTO createCategoryService(CategoryDTO categoryDTO) {
 		Category category = modelMapper.map(categoryDTO, Category.class);
-
 		// Before saving we need to check whether the category with same categoryName exists
 		Category savedCategory = catRepository.findByCategoryNameIgnoreCase(category.getCategoryName());
 		if (savedCategory == null) {

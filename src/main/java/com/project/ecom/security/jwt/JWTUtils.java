@@ -32,7 +32,7 @@ public class JWTUtils {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date((new Date().getTime()) + 300000))
+                .expiration(new Date((new Date().getTime()) + 3000000))
                 .signWith(getSecretKey())
                 .compact();
     }
@@ -66,7 +66,7 @@ public class JWTUtils {
     }
 
 
-    // To create a sceret key:
+    // To create a secret key:
     public Key getSecretKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
