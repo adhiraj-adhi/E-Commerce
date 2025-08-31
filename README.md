@@ -10,7 +10,7 @@ A full-featured **E-commerce backend application** built with **Spring Boot**, p
 - [Tech Stack](#tech-stack)
 - [API Endpoints](#api-endpoints)
 - [Project Structure](#project-structure)
-- [Complete Model Diagram](#complete_model_diagram)
+- [Complete Model Diagram](#complete-model-diagram)
 - [Security](#security)
 - [Exception Handling](#exception-handling)
 - [File Upload](#file-upload)
