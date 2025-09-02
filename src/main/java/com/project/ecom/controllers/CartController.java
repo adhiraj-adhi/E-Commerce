@@ -22,7 +22,7 @@ public class CartController {
         return new ResponseEntity<>(cartDTO, HttpStatus.CREATED);
     }
 
-    @GetMapping("/admin/carts")   // Admin can get all carts
+    @GetMapping("/carts")   // Admin can get all carts
     public ResponseEntity<List<CartDTO>> getAllCartItems() {
         List<CartDTO> cartDTOS = cartService.getAllCartItems();
         return new ResponseEntity<>(cartDTOS, HttpStatus.OK);

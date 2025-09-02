@@ -1,14 +1,16 @@
 package com.project.ecom.services;
 
+import com.project.ecom.dao.CartItemRepository;
+import com.project.ecom.dao.CartRepository;
 import com.project.ecom.dao.CategoryRepository;
 import com.project.ecom.dao.ProductRepository;
 import com.project.ecom.exceptions.APIException;
 import com.project.ecom.exceptions.ResourceNotFoundException;
-import com.project.ecom.model.Category;
-import com.project.ecom.model.Product;
+import com.project.ecom.model.*;
 import com.project.ecom.payload.APIResponse;
 import com.project.ecom.payload.ProductDTO;
 import com.project.ecom.payload.ProductResponse;
+import com.project.ecom.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -34,6 +37,15 @@ public class ProductServiceImpl implements ProductService {
 	
 	@Autowired
 	private FileService fileService;
+
+	@Autowired
+	private AuthUtil authUtil;
+
+	@Autowired
+	private CartRepository cartRepository;
+
+	@Autowired
+	private CartItemRepository cartItemRepository;
 	
 	@Value("${project.image}")
 	private String path; // reading path from application.properties file
@@ -54,13 +66,17 @@ public class ProductServiceImpl implements ProductService {
 			}
 		}
 		
-		if(isProductPresent)
-			throw new APIException("Product already exists!!");
-		
+		if(isProductPresent) throw new APIException("Product already exists!!");
+
+		// Getting seller information:
+		User seller = authUtil.loggedInUser();
+
+		if (seller==null) throw new APIException("Unable to load seller details");
 		product.setCategory(category);
 		product.setImage("default.png");
 		double specialPrice = product.getPrice() - (product.getPrice() * product.getDiscount() * 0.01);
 		product.setSpecialPrice(specialPrice);
+		product.setSeller(seller);
 
 		Product savedProduct = productRepository.save(product);
 
@@ -153,9 +169,25 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductDTO updateProductService(Long productId, Product product) {
-		Product oldProduct = productRepository.findById(productId)
-								.orElseThrow(() -> new ResourceNotFoundException("Product", productId, "productId"));
-	
+		// A seller can update only his product
+		User seller = authUtil.loggedInUser();
+//		Product oldProduct = seller.getProducts().stream()
+//				.filter(product1 -> product1.getProductId().equals(productId))
+//				.findFirst()
+//				.orElseThrow(() -> new ResourceNotFoundException("Product", productId, "productId"));
+		/*
+		* The above approach may not work if user is fetched but product is being fetched
+		* lazily. We can even not do fetch type as eager because if there are many products
+		* associated with seller than while loading seller all the products will also
+		* get loaded (although this may be not required)
+		*  */
+
+//		Product oldProduct = productRepository.findById(productId)
+//								.orElseThrow(() -> new ResourceNotFoundException("Product", productId, "productId"));
+
+		Product oldProduct = productRepository.findBySellerIdAndProductId(seller.getUserId(), productId);
+		if (oldProduct==null) throw new ResourceNotFoundException("Product", productId, "productId");
+
 		oldProduct.setProductName(product.getProductName());
 		oldProduct.setDescription(product.getDescription());
 		oldProduct.setQuantity(product.getQuantity());
@@ -170,11 +202,51 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductDTO deleteProductService(Long productId) {
-		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new ResourceNotFoundException("Product", productId, "productId"));
-		
-		productRepository.deleteById(productId);
-		
+		// If user is admin than directly delete the product
+		// Else check if product is associated with logged in user
+		User loggedInUser = authUtil.loggedInUser();
+
+		Product product;
+
+		if (loggedInUser.getRoles().stream()
+				.anyMatch(role -> role.getRole().equals(AppRole.ROLE_ADMIN))) {
+			product = productRepository.findById(productId)
+					.orElseThrow(() -> new ResourceNotFoundException("Product", productId, "productId"));
+		} else {
+			product = productRepository.findBySellerIdAndProductId(loggedInUser.getUserId(), productId);
+			if (product == null) {
+				throw new ResourceNotFoundException("Product", productId, "productId");
+			}
+		}
+
+		// Since we are deleting the product, we need to delete the product from cartItem and cart also:
+		// Getting CartItems associated with this product:
+		List<CartItem> cartItems = cartItemRepository.findCartItemByProductId(product.getProductId());
+
+		// Getting Carts associated with these cartItems:
+		List<Cart> carts = cartItems.stream().map(cartItem -> cartItem.getCart()).collect(Collectors.toList());
+		// Getting Carts associated with these cartItems:
+		for (Cart cart : carts) {
+			// Calculate the total price adjustment before removing the CartItem
+			cart.setTotalPrice(cart.getTotalPrice() - (product.getSpecialPrice() * cart.getCartItems().stream()
+					.filter(cartItem -> cartItem.getProduct().getProductId().equals(product.getProductId()))
+					.findFirst()
+					.map(CartItem::getQuantity)
+					.orElse(0)));
+
+			// Remove the CartItems associated with the product
+			cart.getCartItems().removeIf(cartItem -> cartItem.getProduct().getProductId().equals(product.getProductId()));
+
+			// Save the updated cart
+			cartRepository.save(cart);
+		}
+
+		// Now delete all the cartItems associated with this product
+		cartItemRepository.deleteByProduct(product);
+
+		// Now delete the product
+		productRepository.delete(product);
+
 		return modelMapper.map(product, ProductDTO.class);
 	}
 
@@ -185,10 +257,13 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductDTO updateProductImageService(Long productId, MultipartFile productImage) {
-		// Get the product from DB
-		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new ResourceNotFoundException("Product", productId, "productId"));
-		
+		// A seller can update only his product
+		User seller = authUtil.loggedInUser();
+
+		// Get the product corresponding to seller from DB
+		Product product = productRepository.findBySellerIdAndProductId(seller.getUserId(), productId);
+		if (product==null) throw new ResourceNotFoundException("Product", productId, "productId");
+
 		/* Upload image to server (for now we will be uploading to server by creating a folder but 
 		 * later on we can upload to some media server also say like S3 bucket). Thereafter get
 		 *  the file name of uploaded image

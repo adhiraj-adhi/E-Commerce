@@ -74,7 +74,7 @@ public class ProductController {
 	
 	
 	// Update a product image
-	@PutMapping("/admin/products/{productId}/image")
+	@PutMapping("/products/{productId}/image")
 	public ResponseEntity<ProductDTO> updateProductImage(
 			@PathVariable Long productId,
 			@RequestParam("Image") MultipartFile productImage) {
@@ -85,15 +85,12 @@ public class ProductController {
 	
 	// Get Products By Seller
 	
-	
-	
-	
 	// Get Product Count
 //	@GetMapping("/admin/products/count")
 //	public ResponseEntity<Long> getProductsCount() {
 //		return ResponseEntity.ok(productService.getProductsCountService());
 //	}
-	@GetMapping("/admin/products/count")
+	@GetMapping("/products/count")
 	public ResponseEntity<APIResponse> getProductsCount() {
 		return ResponseEntity.ok(productService.getProductsCountService());
 	}

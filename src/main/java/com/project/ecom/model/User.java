@@ -26,7 +26,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private int userId;
+    private Long userId;
 
     @NotBlank
     @Size(max = 20)
@@ -49,7 +49,7 @@ public class User {
 
     @ToString.Exclude
     // A user can be seller also, so user can have association with multiple products
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+    @OneToMany(mappedBy = "seller", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
     orphanRemoval = true)
     private Set<Product> products;
 

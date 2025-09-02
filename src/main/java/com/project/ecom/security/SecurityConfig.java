@@ -3,6 +3,7 @@ package com.project.ecom.security;
 import com.project.ecom.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,21 +17,51 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
     @Autowired
     private AuthTokenFilter authTokenFilter;
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);  // disabling csrf
-        http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/signin", "/register",
-//                        "/api/public/categories", // commented for testing
-                        "/api/public/products",
-                        "/api/public/categories/{categoryId}/products",
-                        "/api/public/products/keyword/{keyword}").permitAll()
-                .anyRequest().authenticated());
-
+//    @Bean
+//    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.csrf(AbstractHttpConfigurer::disable);  // disabling csrf
+//        http.authorizeHttpRequests((requests) -> requests
+//                .requestMatchers("/", "/signin", "/register",
+////                        "/api/public/categories", // commented for testing
+//                        "/api/public/products",
+//                        "/api/public/categories/{categoryId}/products",
+//                        "/api/public/products/keyword/{keyword}").permitAll()
+//                .anyRequest().authenticated());
+//
 //        requestMatchers(HttpMethod.GET, "/", "/signin", "/register",
 //                "/api/public/products",
 //                "/api/public/categories/{categoryId}/products",
 //                "/api/public/products/keyword/{keyword}").permitAll()
+//
+//        http.addFilterBefore(authTokenFilter,BasicAuthenticationFilter.class);
+//        http.httpBasic(withDefaults());
+//        return http.build();
+//    }
+
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);  // disabling csrf
+        http.authorizeHttpRequests((requests) -> requests
+                // All Accessible By Only ADMIN
+                .requestMatchers("/api/categories", "/api/categories/*",
+                        "/api/carts", "/api/products/count").hasRole("ADMIN")
+                // All Accessible By Only SELLER
+                .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("SELLER")
+                .requestMatchers("/api/categories/*/product",
+                        "/api/products/*/image").hasRole("SELLER")
+                // All Accessible By Only ADMIN/SELLER
+                .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasAnyRole("SELLER", "ADMIN")
+                // All accessible by user:
+                .requestMatchers("/api/carts/**").hasRole("USER")   // protects everything under /api/carts/
+                // All Public Requests:
+                .requestMatchers("/", "/signin", "register",
+                        "/api/public/categories", "/api/public/products",
+                        "/api/public/categories/*/products", "/api/public/products/keyword/*").permitAll()
+                .anyRequest().authenticated());
+
+        // If we want to protect routes against a type of request then:
+        // requestMatchers(HttpMethod.GET, route1, route2...).permitAll()
 
         http.addFilterBefore(authTokenFilter,BasicAuthenticationFilter.class);
         http.httpBasic(withDefaults());

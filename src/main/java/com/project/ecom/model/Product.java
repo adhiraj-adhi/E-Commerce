@@ -39,7 +39,7 @@ public class Product {
 	// One Product can be associated with only one seller:
 	@ManyToOne
 	@JoinColumn(name = "seller_id")
-	private User user;
+	private User seller;
 
 	// Many product can be associated with one cart:
 	@OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, orphanRemoval = true)

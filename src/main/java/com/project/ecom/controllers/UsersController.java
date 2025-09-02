@@ -78,8 +78,23 @@ public class UsersController {
             roles.add(userRole);
             roles.add(adminRole);
             user.setRoles(roles);
-        }
+        } else {
 
+            Set<Role> role = new HashSet<>();
+
+            Role userRole = new Role();
+            userRole.setRole(AppRole.ROLE_USER);
+            userRole.setUser(user);
+
+            //        To create a seller
+            //        Role sellerRole = new Role();
+            //        sellerRole.setRole(AppRole.ROLE_SELLER);
+            //        sellerRole.setUser(user);
+            //        role.add(sellerRole);
+
+            role.add(userRole);
+            user.setRoles(role);
+        }
         User savedUser = userRepository.save(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
