@@ -38,7 +38,8 @@ public class Address {
     private String zipcode;
 
     @ToString.Exclude
-    // One Address can be associated with multiple Users:
-    @ManyToMany(mappedBy = "addresses")
-    private List<User> users = new ArrayList<>();
+    // Many Address can be associated with one User:
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

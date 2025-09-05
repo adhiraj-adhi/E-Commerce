@@ -45,7 +45,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests((requests) -> requests
                 // All Accessible By Only ADMIN
                 .requestMatchers("/api/categories", "/api/categories/*",
-                        "/api/carts", "/api/products/count").hasRole("ADMIN")
+                        "/api/carts", "/api/products/count", "/api/addresses").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/address/id/*").hasRole("ADMIN")
                 // All Accessible By Only SELLER
                 .requestMatchers(HttpMethod.PUT, "/api/products/*").hasRole("SELLER")
                 .requestMatchers("/api/categories/*/product",
@@ -53,7 +54,8 @@ public class SecurityConfig {
                 // All Accessible By Only ADMIN/SELLER
                 .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasAnyRole("SELLER", "ADMIN")
                 // All accessible by user:
-                .requestMatchers("/api/carts/**").hasRole("USER")   // protects everything under /api/carts/
+//                .requestMatchers("/api/carts/**", "/api/address", "/api/address/user", "/api/address/*").hasRole("USER")   // /api/carts/** -> protects everything under /api/carts/
+                .requestMatchers("/api/carts/**", "/api/address", "/api/address/*").hasRole("USER")   // /api/carts/** -> protects everything under /api/carts/
                 // All Public Requests:
                 .requestMatchers("/", "/signin", "register",
                         "/api/public/categories", "/api/public/products",

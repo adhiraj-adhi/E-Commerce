@@ -47,22 +47,6 @@ public class UsersController {
         user.setUsername(username);
         user.setPassword(password);
 
-        Address address = new Address();
-        address.setBuildingName(requestDTO.getBuildingName());
-        address.setStreet(requestDTO.getStreet());
-        address.setCity(requestDTO.getCity());
-        address.setState(requestDTO.getState());
-        address.setCountry(requestDTO.getCountry());
-        address.setZipcode(requestDTO.getZipcode());
-        List<User> userList = new ArrayList<>();
-        userList.add(user);
-        address.setUsers(userList);
-
-        List<Address> addressList = new ArrayList<>();
-        addressList.add(address);
-
-        user.setAddresses(addressList);
-
         boolean isEmpty = userRepository.count() == 0;  // check if this is first element
         if (isEmpty) {
             Set<Role> roles = new HashSet<>();
