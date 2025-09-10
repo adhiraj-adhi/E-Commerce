@@ -58,7 +58,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<Address> addresses = new ArrayList<>();
 
-    @ToString.Exclude
     // 1 User -> 1 Cart
     @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Cart cart;

@@ -7,29 +7,22 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "cart_items")
+@Table(name = "order_items")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItem {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cartItemId;
+    private Long orderItemId;
 
-    // Many cart items -> 1 cart
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
-
-    // 1 cart item can have same product multiple times for different users
     @ManyToOne
     @JoinColumn(name = "product_id")
-    @ToString.Exclude
     private Product product;
-
-    private double specialPrice;
-
-    private double discount;
-
     private Integer quantity;
+    private Double orderedProductPrice; // Price at the time of order
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

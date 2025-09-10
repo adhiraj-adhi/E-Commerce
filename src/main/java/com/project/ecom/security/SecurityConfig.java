@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasAnyRole("SELLER", "ADMIN")
                 // All accessible by user:
 //                .requestMatchers("/api/carts/**", "/api/address", "/api/address/user", "/api/address/*").hasRole("USER")   // /api/carts/** -> protects everything under /api/carts/
-                .requestMatchers("/api/carts/**", "/api/address", "/api/address/*").hasRole("USER")   // /api/carts/** -> protects everything under /api/carts/
+                .requestMatchers("/api/carts/**", "/api/address", "/api/address/*", "/api/order/users/payment").hasRole("USER")   // /api/carts/** -> protects everything under /api/carts/
                 // All Public Requests:
                 .requestMatchers("/", "/signin", "register",
                         "/api/public/categories", "/api/public/products",
